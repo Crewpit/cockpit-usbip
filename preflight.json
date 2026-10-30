@@ -1,0 +1,27 @@
+{
+  "cmSchema": 1,
+  "version": "1.0.0",
+  "issues": "https://github.com/Crewpit/cockpit-usbip/issues",
+  "cockpitMin": 175,
+  "dependencies": [
+    {
+      "name": "usbip",
+      "package": { "apt-get": "usbip", "dnf": "usbip", "yum": "usbip", "zypper": "usbip", "apk": "usbip-utils", "pacman": "usbip" }
+    },
+    {
+      "name": "usbipd",
+      "package": { "apt-get": "usbip", "dnf": "usbip", "yum": "usbip", "zypper": "usbip", "apk": "usbip-utils", "pacman": "usbip" }
+    },
+    { "name": "modprobe", "package": "kmod" },
+    { "name": "nmap", "package": "nmap" },
+    { "name": "readlink", "package": "coreutils" },
+    {
+      "name": "pgrep",
+      "package": { "apt-get": "procps", "dnf": "procps-ng", "yum": "procps-ng", "zypper": "procps", "apk": "procps", "pacman": "procps-ng" }
+    },
+    {
+      "name": "pkill",
+      "package": { "apt-get": "procps", "dnf": "procps-ng", "yum": "procps-ng", "zypper": "procps", "apk": "procps", "pacman": "procps-ng" }
+    }
+  ]
+}

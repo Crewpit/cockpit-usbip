@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title translate="yes">USB/IP</title>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="theme.js"></script>
+
+    <link href="vendor/patternfly/patternfly.min.css" type="text/css" rel="stylesheet" />
+    <link href="cockpit-glue.css" type="text/css" rel="stylesheet" />
+    <link href="index.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body class="pf-v6-m-tabular-nums">
+    <div class="ct-page-fill" id="app">
+        <div class="pf-v6-c-page no-masthead-sidebar">
+            <div class="pf-v6-c-page__main-container">
+                <!-- Menu bar, built by App.menu.mount() from MENU in index.js.
+                     Sits above <main>, which does the scrolling. -->
+                <nav id="app-menu" class="app-menubar"></nav>
+
+                <main class="pf-v6-c-page__main" tabindex="-1">
+
+                    <section class="pf-v6-c-page__main-section">
+                        <!-- One card for the whole page: title header, the current pane as body, footer. Dividers blend them. -->
+                        <div class="pf-v6-c-card">
+                            <div class="pf-v6-c-card__header">
+                                <div class="pf-v6-c-card__header-main">
+                                    <div class="pf-v6-c-card__title">
+                                        <h1 class="pf-v6-c-card__title-text pf-v6-c-title pf-m-2xl">USB/IP</h1>
+                                    </div>
+                                    <p class="app-muted">Share local USB devices over the network, or attach devices shared by other machines</p>
+                                </div>
+                            </div>
+                            <hr class="pf-v6-c-divider" />
+                            <div class="pf-v6-c-card__body">
+
+                    <div id="pane-server" class="app-pane" hidden>
+                        <div class="app-block">
+                            <div class="app-block__header">
+                                <h2 class="app-block__title">Server Status</h2>
+                            </div>
+                            <p class="app-muted pf-v6-u-mb-md">Share USB devices from this machine. Needs the <code>usbip-host</code> kernel module and the <code>usbipd</code> daemon (listens on TCP 3240).</p>
+                            <dl class="pf-v6-c-description-list pf-m-horizontal">
+                                <div class="pf-v6-c-description-list__group"><dt class="pf-v6-c-description-list__term">Kernel Module</dt><dd class="pf-v6-c-description-list__description"><span id="server-module"></span> <label class="pf-v6-c-switch" for="server-module-sw"><input id="server-module-sw" class="pf-v6-c-switch__input" type="checkbox" /><span class="pf-v6-c-switch__toggle"></span><span class="pf-v6-c-switch__label">Load at Boot</span></label></dd></div>
+                                <div class="pf-v6-c-description-list__group"><dt class="pf-v6-c-description-list__term">Daemon</dt><dd class="pf-v6-c-description-list__description"><span id="server-daemon"></span> <button id="server-daemon-btn" class="pf-v6-c-button pf-m-secondary pf-m-small" type="button" hidden>Start Daemon</button></dd></div>
+                            </dl>
+                        </div>
+                        <div class="app-block">
+                            <div class="app-block__header">
+                                <h2 class="app-block__title">Local USB Devices</h2>
+                                <span id="server-updated" class="app-muted" aria-live="off"></span>
+                            </div>
+                            <p class="app-muted pf-v6-u-mb-md">Bind a device to export it. Binding detaches it from its local driver until it is unbound again.</p>
+                            <div class="app-card-switch">
+                                <label class="pf-v6-c-switch" for="server-auto">
+                                    <input id="server-auto" class="pf-v6-c-switch__input" type="checkbox" aria-describedby="server-auto-hint" checked />
+                                    <span class="pf-v6-c-switch__toggle"></span>
+                                    <span class="pf-v6-c-switch__label">Auto-refresh</span>
+                                </label>
+                                <span id="server-auto-hint" class="app-muted" aria-live="polite"></span>
+                                <button id="server-refresh-btn" class="pf-v6-c-button pf-m-secondary pf-m-small" type="button">Refresh</button>
+                            </div>
+                            <hr class="pf-v6-c-divider pf-v6-u-my-md" />
+                            <div id="server-alert"></div>
+                            <div id="server-table"></div>
+                        </div>
+                    </div>
+
+                    <div id="admin-notice" class="pf-v6-u-mb-md"></div>
+
+                    <div id="pane-client" class="app-pane" hidden>
+                        <div class="app-block">
+                            <div class="app-block__header">
+                                <h2 class="app-block__title">Client Status</h2>
+                            </div>
+                            <p class="app-muted pf-v6-u-mb-md">Use USB devices shared by another machine. Needs the <code>vhci-hcd</code> kernel module.</p>
+                            <dl class="pf-v6-c-description-list pf-m-horizontal">
+                                <div class="pf-v6-c-description-list__group"><dt class="pf-v6-c-description-list__term">Kernel Module</dt><dd class="pf-v6-c-description-list__description"><span id="client-module"></span> <label class="pf-v6-c-switch" for="client-module-sw"><input id="client-module-sw" class="pf-v6-c-switch__input" type="checkbox" /><span class="pf-v6-c-switch__toggle"></span><span class="pf-v6-c-switch__label">Load at Boot</span></label></dd></div>
+                            </dl>
+                        </div>
+                        <div class="app-block">
+                            <div class="pf-v6-c-expandable-section">
+                                <button class="pf-v6-c-expandable-section__toggle" type="button" aria-expanded="false" data-app-expand="scan-content" data-app-text-expanded="Hide Network Scan"><span class="pf-v6-c-expandable-section__toggle-text" translate="yes">Scan Network for Servers</span></button>
+                                <div id="scan-content" class="pf-v6-c-expandable-section__content" hidden>
+                            <p class="app-muted pf-v6-u-mb-md">Finds USB/IP servers on a private network. Probes TCP 3240 with <code>nmap</code> (rate limited, up to /22), then asks each open host for its device list to confirm it really speaks USB/IP.</p>
+                            <form id="scan-form" class="app-inline-form" novalidate>
+                                <span class="pf-v6-c-form-control"><input type="text" id="scan-cidr" placeholder="192.168.1.0/24" aria-label="Network or CIDR to scan" autocomplete="off" /></span>
+                                <button id="scan-btn" class="pf-v6-c-button pf-m-primary" type="submit">Scan</button>
+                                <button id="scan-cancel-btn" class="pf-v6-c-button pf-m-link" type="button" hidden>Cancel</button>
+                            </form>
+                            <p id="scan-status" class="app-muted pf-v6-u-mt-md" aria-live="polite"></p>
+                            <div id="scan-alert" class="pf-v6-u-mt-md"></div>
+                            <div id="scan-table" class="pf-v6-u-mt-md"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="app-block">
+                            <div class="app-block__header">
+                                <h2 class="app-block__title">Remote Devices</h2>
+                            </div>
+                            <form id="client-form" class="app-inline-form" novalidate>
+                                <span class="pf-v6-c-form-control"><input type="text" id="client-host" placeholder="Server Host or IP" aria-label="Server Host or IP" autocomplete="off" /></span>
+                                <button id="client-query-btn" class="pf-v6-c-button pf-m-primary" type="submit">Query</button>
+                            </form>
+                            <div id="client-alert" class="pf-v6-u-mt-md"></div>
+                            <div id="client-remote-table" class="pf-v6-u-mt-md"></div>
+                        </div>
+                        <div class="app-block">
+                            <div class="app-block__header">
+                                <h2 class="app-block__title">Attached Devices</h2>
+                                <span id="client-updated" class="app-muted" aria-live="off"></span>
+                            </div>
+                            <div class="app-card-switch">
+                                <label class="pf-v6-c-switch" for="client-auto">
+                                    <input id="client-auto" class="pf-v6-c-switch__input" type="checkbox" aria-describedby="client-auto-hint" checked />
+                                    <span class="pf-v6-c-switch__toggle"></span>
+                                    <span class="pf-v6-c-switch__label">Auto-refresh</span>
+                                </label>
+                                <span id="client-auto-hint" class="app-muted" aria-live="polite"></span>
+                                <button id="client-refresh-btn" class="pf-v6-c-button pf-m-secondary pf-m-small" type="button">Refresh</button>
+                            </div>
+                            <hr class="pf-v6-c-divider pf-v6-u-my-md" />
+                            <div id="client-ports-alert"></div>
+                            <div id="client-ports-table"></div>
+                        </div>
+                    </div>
+
+                            </div>
+                            <hr class="pf-v6-c-divider" />
+                            <div class="pf-v6-c-card__footer app-footer">
+                                <span id="footer-status" class="app-muted" aria-live="off">Checking...</span>
+                                <span class="app-muted">USBIP v1.0.0</span>
+                            </div>
+                        </div>
+                    </section>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Served by cockpit-ws itself (base1 package), not shipped in this package.
+             Needed for cockpit.* (cockpit.file, cockpit.spawn, cockpit.gettext, ...) to work,
+             and for the shell to be able to talk to this page at all. -->
+    <script src="../base1/cockpit.js"></script>
+    <script src="functions.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

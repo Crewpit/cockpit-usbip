@@ -1,0 +1,14 @@
+{
+    "requires": {
+        "cockpit": "175"
+    },
+    "tools": {
+        "index": {
+            "label": "USB/IP",
+            "order": 100,
+            "keywords": [
+                { "matches": ["usbip", "usb/ip", "usb", "usb over ip", "usbipd"] }
+            ]
+        }
+    }
+}

@@ -1,0 +1,585 @@
+/* Page-specific tweaks. PatternFly (vendor/patternfly/patternfly.min.css) already covers card/page/table/button styling and light/dark tokens. */
+
+body {
+    min-height: 100vh;
+}
+
+/* The vendored PatternFly build ships without utility classes (pf-v6-u-*),
+   so the few spacing ones this page uses are defined here. */
+.pf-v6-u-mt-sm {
+    margin-block-start: var(--pf-t--global--spacer--sm) !important;
+}
+
+.pf-v6-u-mt-md {
+    margin-block-start: var(--pf-t--global--spacer--md) !important;
+}
+
+.pf-v6-u-mb-md {
+    margin-block-end: var(--pf-t--global--spacer--md) !important;
+}
+
+/* Sub-menu active accent, matched in lightness to the brand blue per theme. */
+:root {
+    --app-sub-accent: var(--pf-t--color--purple--50);
+}
+
+:root.pf-v6-theme-dark {
+    --app-sub-accent: var(--pf-t--color--purple--30);
+}
+
+/* ------------------------------------------------------------------
+ * Menu bar (built by App.menu.mount).
+ *
+ * .pf-v6-c-page__main-container is a flex column: the bar takes a row at the
+ * top and <main> fills the rest and scrolls, so the bar never covers content.
+ * ------------------------------------------------------------------ */
+
+.pf-v6-c-page__main-container > .pf-v6-c-page__main {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.app-menubar {
+    flex: none;
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    max-width: calc(100% - 2 * var(--pf-t--global--spacer--md));
+    margin: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--md) 0;
+    padding: var(--pf-t--global--spacer--xs);
+    background: color-mix(in srgb, var(--pf-t--global--background--color--primary--default) 55%, transparent);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid color-mix(in srgb, var(--pf-t--global--border--color--default) 60%, transparent);
+    border-radius: 999px;
+    box-shadow: var(--pf-t--global--box-shadow--md);
+}
+
+.app-menubar__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--sm);
+    padding: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--pf-t--global--text--color--regular);
+    font: inherit;
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.app-menubar__toggle:hover {
+    background: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.app-menubar__glyph {
+    flex: none;
+    width: 0.875rem;
+    height: 0.875rem;
+    fill: none;
+    stroke: var(--pf-t--global--color--brand--default);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* "|>" while collapsed, "|<" while expanded. */
+.app-menubar__toggle[aria-expanded="true"] .app-menubar__glyph-expand,
+.app-menubar__toggle[aria-expanded="false"] .app-menubar__glyph-hide {
+    display: none;
+}
+
+/* Animates open/closed with grid-template-columns 0fr <-> 1fr (no fixed
+   width needed). App.menu sets `inert` on the list while collapsed. */
+.app-menubar__collapse {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-width: 0;
+    overflow: hidden;
+    transition: grid-template-columns var(--pf-t--global--motion--duration--fade--default) ease;
+}
+
+.app-menubar.is-collapsed .app-menubar__collapse {
+    grid-template-columns: 0fr;
+}
+
+.app-menubar__items {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* A long top bar (e.g. a menu built from many saved entries) scrolls sideways
+   instead of clipping; App.menu scrolls the current item into view. */
+.app-menubar__collapse > .app-menubar__items {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+/* The divider lives on the first item, not the list: a 0-width grid column
+   can't shrink a box's own border/padding, but it does clip its children. */
+.app-menubar__items > li:first-child {
+    margin-inline-start: var(--pf-t--global--spacer--xs);
+    padding-inline-start: var(--pf-t--global--spacer--sm);
+    border-inline-start: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.app-menubar__item {
+    display: block;
+    padding: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md);
+    border-radius: 999px;
+    color: var(--pf-t--global--text--color--subtle);
+    font-size: var(--pf-t--global--font--size--body--sm);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.app-menubar__item:hover {
+    color: var(--pf-t--global--text--color--regular);
+    background: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+/* aria-current="page" (current page) or "true" (last-clicked action item). */
+.app-menubar__item[aria-current] {
+    color: var(--pf-t--global--color--brand--default);
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+    background: color-mix(in srgb, var(--pf-t--global--color--brand--default) 16%, transparent);
+}
+
+/* Sub-bar for an item's `children`; takes its own row like the main bar. */
+.app-submenu {
+    flex: none;
+    align-self: flex-end;
+    max-width: calc(100% - 2 * var(--pf-t--global--spacer--md));
+    margin: var(--pf-t--global--spacer--xs) var(--pf-t--global--spacer--md) 0;
+    padding: 2px;
+    background: color-mix(in srgb, var(--pf-t--global--background--color--primary--default) 40%, transparent);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px dashed color-mix(in srgb, var(--pf-t--global--border--color--default) 70%, transparent);
+    /* Rounded rectangle, not a full pill: the sub-bar wraps when there are many items. */
+    border-radius: 1.25rem;
+}
+
+/* Hover/focus preview of a sub-bar that isn't the current page's: floats over
+   the content (top is set by App.menu) so the page below never shifts. */
+.pf-v6-c-page__main-container {
+    position: relative;
+}
+
+.app-submenu.is-preview {
+    position: absolute;
+    inset-inline-end: 0;
+    z-index: var(--pf-t--global--z-index--md, 200);
+}
+
+/* The current branch's bar while another is previewed: keeps its row height. */
+.app-submenu.is-covered {
+    visibility: hidden;
+}
+
+.app-submenu .app-menubar__items {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Sub-menu active item: purple pill with a leading dot. */
+.app-submenu .app-menubar__item[aria-current] {
+    color: var(--app-sub-accent);
+    background: color-mix(in srgb, var(--app-sub-accent) 16%, transparent);
+}
+
+.app-submenu .app-menubar__item[aria-current]::before {
+    content: "";
+    display: inline-block;
+    width: 0.4em;
+    height: 0.4em;
+    margin-inline-end: 0.45em;
+    vertical-align: 0.15em;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* The main bar's first-item divider doesn't apply inside a sub-bar. */
+.app-submenu .app-menubar__items > li:first-child {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Items with an `action` in MENU render as <button>; make them look like the links. */
+button.app-menubar__item {
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Links with no `path` in MENU: visibly inert. */
+.app-menubar__item.is-placeholder {
+    font-style: italic;
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-menubar__collapse {
+        transition: none;
+    }
+}
+
+/* App.run() busy state on whatever button it was given. */
+.app-is-busy {
+    cursor: progress;
+    opacity: 0.6;
+}
+
+/* App.alerts.toast(): bottom-right, so toasts never cover the menu bar. */
+.pf-v6-c-alert-group.pf-m-toast.app-toasts {
+    inset-block-start: auto;
+    inset-block-end: var(--pf-t--global--spacer--lg);
+}
+
+.app-alert__icon {
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+/* App.modals.changeList() */
+.app-changes {
+    margin: var(--pf-t--global--spacer--sm) 0;
+    padding-inline-start: var(--pf-t--global--spacer--lg);
+    list-style: disc;
+}
+
+.app-changes__old {
+    font-style: italic;
+    color: var(--pf-t--global--text--color--status--warning--default);
+}
+
+.app-changes__new {
+    color: var(--pf-t--global--text--color--status--success--default);
+}
+
+.app-settings__heading {
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+/* Keeps a lone input from stretching edge-to-edge on a wide window. */
+.app-settings .pf-v6-c-form__group-control {
+    max-inline-size: 28rem;
+}
+
+.app-settings__alert:not(:empty) {
+    margin-block-end: var(--pf-t--global--spacer--md);
+}
+
+/* App.table.create() */
+.app-table .app-table__num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
+.app-table__empty {
+    color: var(--pf-t--global--text--color--subtle);
+    text-align: center;
+}
+
+.app-muted {
+    color: var(--pf-t--global--text--color--subtle);
+    font-size: var(--pf-t--global--font--size--body--sm);
+}
+
+/* App.modals */
+.app-modal {
+    max-inline-size: 36rem;
+    inline-size: 100%;
+}
+
+/* Status line set via the controller's setStatus(). */
+.app-modal__status {
+    margin-block-start: var(--pf-t--global--spacer--md);
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+    color: var(--pf-t--global--color--brand--default);
+}
+
+.app-modal__countdown {
+    margin-inline-end: auto;
+    color: var(--pf-t--global--text--color--subtle);
+}
+
+/* Switch in a card header: the switch on the left, a
+   one-line explanation beside it, an <hr class="pf-v6-c-divider"> below it.
+   Markup: see pane-debug-switch in index.html. */
+.app-card-switch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--lg);
+}
+
+/* Section divider row inside a table: heavy brand-coloured rule + label, so
+   it's obvious where one group ends and the next begins. Put on a <tr> that
+   holds a single <th colspan scope="colgroup">. */
+.pf-v6-c-table tbody .app-table__divider th {
+    padding-block: var(--pf-t--global--spacer--sm);
+    border-block-start: var(--pf-t--global--border--width--extra-strong) solid var(--pf-t--global--border--color--brand--default);
+    background: var(--pf-t--global--background--color--secondary--default);
+    color: var(--pf-t--global--text--color--brand--default);
+    font-weight: var(--pf-t--global--font--weight--body--bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Dimmed table row (e.g. a disabled/hidden item that stays listed). */
+.app-table__row--muted td {
+    opacity: 0.6;
+}
+
+/* Monospace cell for keys/ids. */
+.app-mono {
+    font-family: var(--pf-t--global--font--family--mono);
+}
+
+/* Small row of plain icon buttons, e.g. the up/down arrows of a reorder column. */
+.app-btn-group {
+    display: inline-flex;
+    gap: var(--pf-t--global--spacer--xs);
+}
+
+/* Wrapping row of sample controls on the Elements pages. */
+.app-demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--md);
+    margin-block-end: var(--pf-t--global--spacer--md);
+}
+
+/* The page is one card; each pane is a stack of flat blocks inside its body.
+   A block = heading row + content; consecutive blocks are divided by a rule,
+   so header, content and footer read as one surface instead of nested boxes. */
+.app-block + .app-block {
+    margin-block-start: var(--pf-t--global--spacer--lg);
+    padding-block-start: var(--pf-t--global--spacer--lg);
+    border-block-start: var(--pf-t--global--border--width--regular) solid var(--pf-t--global--border--color--default);
+}
+
+.app-block__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pf-t--global--spacer--sm);
+    margin-block-end: var(--pf-t--global--spacer--sm);
+}
+
+.app-block__title {
+    margin: 0;
+    font-size: var(--pf-t--global--font--size--heading--sm);
+    font-weight: var(--pf-t--global--font--weight--heading--default);
+}
+
+.pf-v6-u-my-md {
+    margin-block: var(--pf-t--global--spacer--md) !important;
+}
+
+/* Page card footer: text on the left, version on the right. */
+.app-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--pf-t--global--spacer--sm);
+}
+
+/* ------------------------------------------------------------------
+ * Accessibility and polish
+ * ------------------------------------------------------------------ */
+
+/* Visible keyboard focus on the menu: the pills hide the browser default. */
+.app-menubar__toggle:focus-visible,
+.app-menubar__item:focus-visible {
+    outline: var(--pf-t--global--border--width--strong, 2px) solid var(--pf-t--global--color--brand--default);
+    outline-offset: 1px;
+}
+
+.app-menubar__toggle:active,
+.app-menubar__item:active {
+    background: var(--pf-t--global--background--color--action--plain--clicked, var(--pf-t--global--background--color--action--plain--hover));
+}
+
+/* Without backdrop blur the translucent bars would let page text show through. */
+@supports not (backdrop-filter: blur(1px)) {
+    .app-menubar,
+    .app-submenu {
+        background: var(--pf-t--global--background--color--primary--default);
+    }
+}
+
+/* Touch screens: bigger targets for the menu pills. */
+@media (pointer: coarse) {
+    .app-menubar__toggle,
+    .app-menubar__item {
+        min-block-size: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Narrow windows: the bar is a little tighter so more of it fits. */
+@media (max-width: 36rem) {
+    .app-menubar,
+    .app-submenu {
+        max-width: calc(100% - 2 * var(--pf-t--global--spacer--sm));
+        margin-inline: var(--pf-t--global--spacer--sm);
+    }
+
+    .app-menubar__item {
+        padding-inline: var(--pf-t--global--spacer--sm);
+    }
+}
+
+/* High-contrast / forced colors drop backgrounds, so mark the current item
+   with an underline and keep the bars outlined. */
+@media (forced-colors: active) {
+    .app-menubar,
+    .app-submenu {
+        border: 1px solid CanvasText;
+    }
+
+    .app-menubar__item[aria-current] {
+        text-decoration: underline;
+        text-underline-offset: 0.3em;
+    }
+}
+
+/* Wide tables (e.g. the process list) scroll inside their block on narrow windows. */
+#process-table {
+    overflow-x: auto;
+}
+
+/* Opening a pane fades it in (opacity only, twice the theme's fade duration), so a click on the menu visibly lands. */
+@media (prefers-reduced-motion: no-preference) {
+    .app-pane:not([hidden]) {
+        animation: app-pane-in calc(2 * var(--pf-t--global--motion--duration--fade--default, 150ms)) ease-out;
+    }
+}
+
+@keyframes app-pane-in {
+    from {
+        opacity: 0;
+    }
+}
+
+/* Links in the page and in modals read as links by colour alone, like the menu
+   bar; PatternFly's default underline is dropped. */
+.pf-v6-c-page__main a:not(.pf-v6-c-button),
+.app-modal a:not(.pf-v6-c-button) {
+    text-decoration: none;
+}
+
+/* Code blocks: dark purple in the dark theme, pale mint in the light one. */
+:root {
+    --app-code-bg: #e3f4ef;
+    --app-code-fg: #12332b;
+    --app-code-border: #a9d9cc;
+}
+
+:root.pf-v6-theme-dark {
+    --app-code-bg: #2a1c4e;
+    --app-code-fg: #ece6ff;
+    --app-code-border: #52408a;
+}
+
+.pf-v6-c-code-block {
+    --pf-v6-c-code-block--BackgroundColor: var(--app-code-bg);
+    --pf-v6-c-code-block--BorderColor: var(--app-code-border);
+    --pf-v6-c-code-block--BorderWidth: 1px;
+    color: var(--app-code-fg);
+}
+
+/* Spinner sample: centered on its own line under the progress bars, label below. */
+.app-spinner-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--sm);
+    margin-block-start: var(--pf-t--global--spacer--lg);
+}
+
+.app-spinner-demo .pf-v6-c-spinner {
+    --pf-v6-c-spinner--diameter: 4rem;
+}
+
+/* Expandable-section toggle: a full-width bar in Cockpit's brand blue (tinted
+   fill, brand border and text), built from theme tokens so it pops in both
+   light and dark. */
+.pf-v6-c-expandable-section__toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--sm);
+    padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+    border: var(--pf-t--global--border--width--regular) solid var(--pf-t--global--border--color--brand--default);
+    border-radius: var(--pf-t--global--border--radius--sm);
+    background: color-mix(in srgb, var(--pf-t--global--color--brand--default) 14%, transparent);
+    color: var(--pf-t--global--text--color--brand--default);
+    font: inherit;
+    font-weight: var(--pf-t--global--font--weight--body--bold, 600);
+    text-align: start;
+    cursor: pointer;
+}
+
+.pf-v6-c-expandable-section__toggle:hover,
+.pf-v6-c-expandable-section__toggle:focus-visible {
+    background: color-mix(in srgb, var(--pf-t--global--color--brand--default) 26%, transparent);
+}
+
+.pf-v6-c-expandable-section__toggle::before {
+    content: "";
+    width: 0.45em;
+    height: 0.45em;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+}
+
+.pf-v6-c-expandable-section__toggle[aria-expanded="true"]::before {
+    transform: rotate(45deg);
+}
+
+.pf-v6-c-expandable-section__content {
+    margin-top: var(--pf-t--global--spacer--md);
+}
+
+.app-inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--md);
+}
+
+.app-inline-form .pf-v6-c-form-control {
+    flex: 1 1 16rem;
+    width: auto;
+    max-width: 28rem;
+}
+
+.app-table .pf-v6-c-table__text,
+.app-table .pf-v6-c-table__sort-indicator,
+.app-table .pf-v6-c-table__button-content,
+.app-table .pf-v6-c-table__button {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.app-table th.pf-v6-c-table__sort {
+    min-width: max-content;
+    overflow: visible;
+    text-overflow: clip;
+}
